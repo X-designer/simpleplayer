@@ -92,7 +92,7 @@ class SimplePlayer final {
 
     SDL_RenderClear(renderer_);
 
-    SDL_Rect target;
+    SDL_Rect target{};
     SDL_GetWindowSize(window_, &target.w, &target.h);
     SDL_RenderCopy(renderer_, texture_, nullptr, &target);
     SDL_RenderPresent(renderer_);
@@ -112,7 +112,8 @@ class SimplePlayer final {
       uint32_t during = now - last_time;
       cout << "during: " << during << ", need sleep " << (delytime - during)
            << endl;
-      SDL_Delay(delytime);
+      this_thread::sleep_for(chrono::milliseconds(int(delytime)));
+      // SDL_Delay(delytime);
       last_time = SDL_GetTicks();
     }
 
