@@ -6,6 +6,7 @@ extern "C" {
 #include <SDL.h>
 #include <SDL_events.h>
 #include <SDL_render.h>
+#include <SDL_ttf.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 }
@@ -89,26 +90,39 @@ class SimplePlayer final {
 
     SDL_Rect rect{0, 0, vid_context_->width, vid_context_->height};
     cout << "rect: " << rect.w << ", " << rect.h << endl;
+    SDL_RenderClear(renderer_);
+
+    std::string msg = "hello tick: ";
+    msg += std::to_string(SDL_GetTicks());
+    SDL_Surface* surface = TTF_RenderText(font_, msg.c_str(), fg_, bg_);
+    SDL_Texture* texttexture = SDL_CreateTextureFromSurface(renderer_, surface);
 
     SDL_UpdateYUVTexture(texture_, nullptr, v_frame_->data[0],
                          v_frame_->linesize[0], v_frame_->data[1],
                          v_frame_->linesize[1], v_frame_->data[2],
                          v_frame_->linesize[2]);
 
-    SDL_RenderClear(renderer_);
-
     SDL_Rect target{};
     SDL_GetWindowSize(window_, &target.w, &target.h);
+    cout << "target: " << target.x << ", " << target.y << ", " << target.w
+         << ", " << target.h << endl;
+    // target.x = 50;
+    // target.y = 50;
+    // target.w -= target.x;
+    // target.h -= target.y;
     SDL_RenderCopy(renderer_, texture_, nullptr, &target);
+
+    SDL_Rect msg_rect{0, 0, 200, 100};
+    // SDL_SetTextureBlendMode(texttexture, SDL_BLENDMODE_BLEND);
+    // SDL_SetTextureAlphaMod(texttexture, 0x7F);
+    SDL_RenderCopy(renderer_, texttexture, nullptr, &msg_rect);
+
     SDL_RenderPresent(renderer_);
 
     std::chrono::steady_clock::time_point t_point =
         std::chrono::steady_clock::now();
 
-    t_point = std::chrono::steady_clock::now();
-    t_point = std::chrono::steady_clock::now();
-    t_point = std::chrono::steady_clock::now();
-    t_point = std::chrono::steady_clock::now();
+    // t_point = std::chrono::steady_clock::now();
     // auto during =
     //     chrono::duration_cast<chrono::milliseconds>(now -
     //     lastframe_timepoint_)
@@ -122,9 +136,9 @@ class SimplePlayer final {
       uint32_t during = now - last_time;
       cout << "during: " << during << ", need sleep " << (delytime - during)
            << endl;
-      this_thread::sleep_for(chrono::milliseconds(int(delytime)));
-      // Delay(delytime);
-      // SDL_Delay(delytime);
+
+      this_thread::sleep_for(chrono::milliseconds(int(delytime - during)));
+      // SDL_Delay(delytime - during);
       last_time = SDL_GetTicks();
     }
 
@@ -216,9 +230,14 @@ class SimplePlayer final {
  public:
   SimplePlayer(std::string title, int x, int y, int w, int h, uint32_t flag)
       : title_(title) {
+    cout << "sdl version: " << SDL_GetRevision() << endl;
     window_ = SDL_CreateWindow(title_.c_str(), x, y, w, h, flag);
 
     renderer_ = SDL_CreateRenderer(window_, -1, 0);
+
+    TTF_Init();
+
+    font_ = TTF_OpenFont("font/consola.ttf", 48);
 
     { SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 100); }
   }
@@ -240,6 +259,9 @@ class SimplePlayer final {
       avformat_close_input(&av_format_context_);
       avformat_free_context(av_format_context_);
     }
+
+    if (font_ != nullptr) TTF_CloseFont(font_);
+
     if (renderer_ != nullptr) SDL_DestroyRenderer(renderer_);
     if (window_ != nullptr) SDL_DestroyWindow(window_);
   }
@@ -252,6 +274,11 @@ class SimplePlayer final {
   SDL_Window* window_ = nullptr;
   SDL_Renderer* renderer_ = nullptr;
   SDL_Texture* texture_ = nullptr;
+
+  TTF_Font* font_ = nullptr;
+
+  SDL_Color fg_{0xff, 0xff, 0xff, 255};
+  SDL_Color bg_{0x8e, 0x00, 0x00, 0x01};
 
   AVFormatContext* av_format_context_ = nullptr;
 

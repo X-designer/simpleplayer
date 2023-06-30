@@ -8,6 +8,7 @@ target_link_libraries(hello
 	PUBLIC FFMPEG::avformat
 	PUBLIC FFMPEG::avcodec
 	PUBLIC SDL2::SDL2
+	PUBLIC SDL2_ttf::SDL2_ttf
 	)
 
 target_compile_definitions(hello
@@ -22,6 +23,7 @@ target_link_libraries(basic
 	PUBLIC FFMPEG::avformat
 	PUBLIC FFMPEG::avcodec
 	PUBLIC SDL2::SDL2
+	PUBLIC SDL2_ttf::SDL2_ttf
 	)
 
 target_compile_definitions(basic
