@@ -7,7 +7,7 @@ add_executable(hello
 target_link_libraries(hello
 	PUBLIC FFMPEG::avformat
 	PUBLIC FFMPEG::avcodec
-	PUBLIC SDL2::SDL2-static
+	PUBLIC SDL2::SDL2
 	)
 
 target_compile_definitions(hello
@@ -21,7 +21,7 @@ add_executable(basic
 target_link_libraries(basic
 	PUBLIC FFMPEG::avformat
 	PUBLIC FFMPEG::avcodec
-	PUBLIC SDL2::SDL2-static
+	PUBLIC SDL2::SDL2
 	)
 
 target_compile_definitions(basic

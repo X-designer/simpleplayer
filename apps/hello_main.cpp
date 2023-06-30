@@ -20,6 +20,10 @@ bool is_quit = false;
 
 std::string media_name;
 
+void Delay(uint32_t count) {
+  this_thread::sleep_for(std::chrono::milliseconds(count));
+}
+
 class SimplePlayer final {
  public:
   void ProcessInput() {
@@ -48,8 +52,6 @@ class SimplePlayer final {
   }
 
   void Update() {
-    // std::chrono::steady_clock::time_point current =
-    //     std::chrono::steady_clock::now();
     int result = av_read_frame(av_format_context_, packet_);
     if (result < 0) {
       cout << "av read frame error: " << endl;
@@ -85,6 +87,9 @@ class SimplePlayer final {
     //      << ", pts" << v_frame_->pts              //
     //      << ", pts" << v_frame_->pts << ", delay time" << delytime << endl;
 
+    SDL_Rect rect{0, 0, vid_context_->width, vid_context_->height};
+    cout << "rect: " << rect.w << ", " << rect.h << endl;
+
     SDL_UpdateYUVTexture(texture_, nullptr, v_frame_->data[0],
                          v_frame_->linesize[0], v_frame_->data[1],
                          v_frame_->linesize[1], v_frame_->data[2],
@@ -97,8 +102,13 @@ class SimplePlayer final {
     SDL_RenderCopy(renderer_, texture_, nullptr, &target);
     SDL_RenderPresent(renderer_);
 
-    // std::chrono::steady_clock::time_point now =
-    //     std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point t_point =
+        std::chrono::steady_clock::now();
+
+    t_point = std::chrono::steady_clock::now();
+    t_point = std::chrono::steady_clock::now();
+    t_point = std::chrono::steady_clock::now();
+    t_point = std::chrono::steady_clock::now();
     // auto during =
     //     chrono::duration_cast<chrono::milliseconds>(now -
     //     lastframe_timepoint_)
@@ -113,12 +123,12 @@ class SimplePlayer final {
       cout << "during: " << during << ", need sleep " << (delytime - during)
            << endl;
       this_thread::sleep_for(chrono::milliseconds(int(delytime)));
+      // Delay(delytime);
       // SDL_Delay(delytime);
       last_time = SDL_GetTicks();
     }
 
-    // this_thread::sleep_for(chrono::milliseconds(int(delytime) + 100));
-    // lastframe_timepoint_ = std::chrono::steady_clock::now();
+    //  lastframe_timepoint_ = std::chrono::steady_clock::now();
 
     av_packet_unref(packet_);
   }
